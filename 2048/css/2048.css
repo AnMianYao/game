@@ -1,0 +1,248 @@
+header{
+    width: 90%;
+    margin: 10px auto;
+}
+header >div:first-child{
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+}
+header >div h2{
+    color: #777777;
+    font-size: 2.5em;
+}
+div.score p{
+    text-align: center;
+    display: inline-block;
+    background-color: #a4a4a4;
+    font-size: 1rem;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-transform: capitalize;
+    color: #E4E4E4;
+}
+div.score em{
+    display: inline-block;
+    font-size: 1.2rem;
+    width: 100%;
+    font-style:normal;
+    min-height: 1.2rem;
+
+    color: #ffffff;
+}
+
+main#gamePanel{
+    width: 330px;
+    height: 330px;
+    margin: 50px auto;
+    position: relative;
+    background-color: #8b8b8b;
+}
+
+main#gamePanel >.background >div.cell{
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    background-color: #c1c1c1;
+    margin:10px;
+}
+
+div.cardNum{
+    width: 70px;
+    height: 70px;
+    margin: 10px;
+    position: absolute;
+    color: white;
+    text-align: center;
+    z-index: 99;
+    line-height: 70px;
+    font-size: 20px;
+    font-weight: bolder;
+    transform: scale(1);
+    transform-origin: center;
+
+}
+div.cardNum.merge{
+    animation: merge .5s ease-in-out;
+}
+@keyframes merge {
+    0%{
+        transform: scale(1);
+    }
+    50%{
+        transform: scale(1.2);
+    }
+    100%{
+        transform: scale(1);
+    }
+}
+div.cardNum-2{
+    background-color: #00cc6a;
+}
+div.cardNum-4{
+    background-color: #00b294;
+}
+div.cardNum-8{
+    background-color: #0099bc;
+}
+div.cardNum-16{
+     background-color: #00b7c3;
+ }
+div.cardNum-32{
+    background-color: #2d7d9a;
+}
+div.cardNum-64{
+    background-color: #038387;
+}
+div.cardNum-128{
+    background-color: #8764b8;
+}
+div.cardNum-256{
+    background-color: #b146c2;
+}
+div.cardNum-528{
+    background-color: #744da9;
+}
+div.cardNum-1024{
+    background-color: #e74856;
+}
+div.cardNum-2048{
+    background-color: #cc295e;
+}
+
+
+/**
+row1
+ */
+div.cardNum.position-0-0,div.cell.cell-0-0{
+    transform: translate(0px,0px);
+    -webkit-transform: translate(0px,0px);
+}
+div.cardNum.position-0-1,div.cell.cell-0-1{
+    transform: translate(80px,0px);
+    -webkit-transform: translate(80px,0px);
+}
+div.cardNum.position-0-2,div.cell.cell-0-2{
+    transform: translate(160px,0px);
+    -webkit-transform: translate(160px,0px);
+}
+div.cardNum.position-0-3,div.cell.cell-0-3{
+    transform: translate(240px,0px);
+    -webkit-transform: translate(240px,0px);
+}
+
+
+/**
+row2
+ */
+div.cardNum.position-1-0,div.cell.cell-1-0{
+    transform: translate(0px,80px);
+    -webkit-transform: translate(0px,80px);
+}
+div.cardNum.position-1-1,div.cell.cell-1-1{
+    transform: translate(80px,80px);
+    -webkit-transform: translate(80px,80px);
+}
+div.cardNum.position-1-2,div.cell.cell-1-2{
+    transform: translate(160px,80px);
+    -webkit-transform: translate(160px,80px);
+}
+div.cardNum.position-1-3,div.cell.cell-1-3{
+    transform: translate(240px,80px);
+    -webkit-transform: translate(240px,80px);
+}
+
+
+/**
+row3
+ */
+div.cardNum.position-2-0,div.cell.cell-2-0{
+    transform: translate(0px,160px);
+    -webkit-transform: translate(0px,160px);
+}
+div.cardNum.position-2-1,div.cell.cell-2-1{
+    transform: translate(80px,160px);
+    -webkit-transform: translate(80px,160px);
+}
+div.cardNum.position-2-2,div.cell.cell-2-2{
+    transform: translate(160px,160px);
+    -webkit-transform: translate(160px,160px);
+}
+div.cardNum.position-2-3,div.cell.cell-2-3{
+    transform: translate(240px,160px);
+    -webkit-transform: translate(240px,160px);
+}
+
+
+/**
+row4
+ */
+div.cardNum.position-3-0,div.cell.cell-3-0{
+    transform: translate(0px,240px);
+    -webkit-transform: translate(0px,240px);
+}
+div.cardNum.position-3-1,div.cell.cell-3-1{
+    transform: translate(80px,240px);
+    -webkit-transform: translate(80px,240px);
+}
+div.cardNum.position-3-2,div.cell.cell-3-2{
+    transform: translate(160px,240px);
+    -webkit-transform: translate(160px,240px);
+}
+div.cardNum.position-3-3,div.cell.cell-3-3{
+    transform: translate(240px,240px);
+    -webkit-transform: translate(240px,240px);
+}
+button.start{
+    position: relative;
+    left: 50%;
+    border: none;
+    border-radius: 2px;
+    display: block;
+    padding: 1em 2rem;
+    text-transform: uppercase;
+    vertical-align: middle;
+    font-size: 1rem;
+    text-decoration: none;
+    color: #fff;
+    background-color: #26a69a;
+    text-align: center;
+    letter-spacing: .5px;
+    -webkit-transition: background-color .2s ease-out;
+    transition: background-color .2s ease-out;
+    cursor: pointer;
+}
+button.start:hover{
+    background-color: rgba(38,166,154,0.75);
+}
+.toast{
+    position: fixed;
+    z-index: 10000;
+    top: 10%;
+    left: 7%;
+    padding: 10px 25px;
+    line-height: 1.5em;
+    background-color: #00b7c3;
+    font-weight: bolder;
+    font-size: 1.1rem;
+    color: white;
+    border-radius: 24px;
+}
+
+#cover{
+    position: absolute;
+    left: 50%;
+    width: 330px;
+    height: 330px;
+    margin-left: -165px;
+    background-color: rgba(146, 163, 255, 0.5);
+    z-index: 9999;
+    line-height: 330px;
+    font-size: 3rem;
+    text-align: center;
+    text-transform: capitalize;
+}
+.hide{
+    display: none;
+}
