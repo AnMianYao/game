@@ -10,6 +10,7 @@ var JumpGame=function () {
     this.camera = null;
     this.renderer = null;
     this.plane=null;
+    this.light=null;//产生阴影的光源
     this.user=null;
     this.cubes=[];
     this.box={
@@ -44,16 +45,6 @@ var JumpGame=function () {
 
     }
 };
-var stats=new Stats();
-var controls = new function() {
-    this.x=0.004;
-    this.z=0.008;
-};
-
-var gui = new dat.GUI();
-gui.add(controls, 'z',0,30);
-gui.add(controls, 'x',0,0.1);
-
 
 JumpGame.prototype={
     getScore:function () {
@@ -68,24 +59,23 @@ JumpGame.prototype={
         this.size.height = window.innerHeight
     },
     setCamera:function () {
-        this.camera.position.set(120, 60, 60);
+        this.camera.position.set(10, 50, 30);
         this.camera.lookAt(this.cameraPos.current);
     },
     handleWindowResize:function () {
         this.setSize();
-        this.camera.left = this.size.width / -10;
-        this.camera.right = this.size.width / 10;
-        this.camera.top = this.size.height / 10;
-        this.camera.bottom = this.size.height / -10;
+        this.camera.left = this.size.width /10;
+        this.camera.right = this.size.width /-10;
+        this.camera.top = this.size.height /10;
+        this.camera.bottom = this.size.height/-10 ;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(this.size.width, this.size.height);
         this.render()
     },
     creatScene:function () {
         this.scene=new THREE.Scene();
-        var camera=new THREE.OrthographicCamera(-this.size.width/10,this.size.width/10,
+        this.camera=new THREE.OrthographicCamera(-this.size.width/10,this.size.width/10,
             this.size.height/10,-this.size.height/10,0,1000);
-        this.camera=camera;
         this.setCamera();
         this.scene.add(this.camera);
 
@@ -105,26 +95,14 @@ JumpGame.prototype={
         this.scene.add(helpAxis);
     },
     addAmbientLight:function(){
-        var ambiColor = "#def5f5";
+        var ambiColor = "#c8c8c8";
         var ambientLight = new THREE.AmbientLight(ambiColor);
         this.scene.add(ambientLight);
-    },
-    addSpotLight:function () {
-        var pointColor = "#ffffff";
-        var spotLight = new THREE.SpotLight(pointColor);
-        spotLight.position.set(-40, 60, -10);
-        spotLight.castShadow = true;
-        spotLight.shadow.camera.near = 2;
-        spotLight.shadow.camera.far = 200;
-        spotLight.shadow.camera.fov = 130;
-        spotLight.target = this.plane;
-        spotLight.distance = 0;
-        this.scene.add(spotLight);
     },
     addDirectionalLight:function () {
         var pointColor = "#ffffff";
         var directionalLight = new THREE.DirectionalLight(pointColor);
-        directionalLight.position.set(30, 50, -40);
+        directionalLight.position.set(10, 50, -10);
         directionalLight.castShadow = true;
         directionalLight.shadow.camera.near = 2;
         directionalLight.shadow.camera.far = 200;
@@ -137,7 +115,7 @@ JumpGame.prototype={
         directionalLight.intensity = 0.5;
         directionalLight.shadow.mapSize.height= 1024;
         directionalLight.shadow.mapSize.width = 1024;
-
+        this.light=directionalLight;
         this.scene.add(directionalLight);
     },
     creatUser:function (x,y,z) {
@@ -162,7 +140,6 @@ JumpGame.prototype={
         this.user=user;
     },
     render:function () {
-        stats.update();
         this.renderer.render(this.scene, this.camera);
     },
     gameOver:function () {
@@ -195,7 +172,7 @@ JumpGame.prototype={
     createPlane:function () {
         var planeGeometry = new THREE.PlaneGeometry(180,180,1,1);
 
-        var planeMaterial =   new THREE.MeshLambertMaterial({color: 0xC8C8C8});
+        var planeMaterial =   new THREE.MeshLambertMaterial({color: 0xffffff});
         var plane = new THREE.Mesh(planeGeometry,planeMaterial);
         plane.receiveShadow = true;
 
@@ -243,8 +220,10 @@ JumpGame.prototype={
     },
     updateCubes:function () {
       if(this.cubes.length>5){
-          this.cubes.splice(0,this.cubes.length-5);
+          var cube=this.cubes.shift();
+          this.scene.remove(cube);
       }
+      this.render();
     },
     updateCameraPosition:function () {
 
@@ -290,11 +269,13 @@ JumpGame.prototype={
                     self.cameraPos.current.z=self.cameraPos.next.z;
                 }
                 self.camera.lookAt(current.x,0,current.z);
+                self.light.position.set(current.x+10, 50, current.z-10);
                 self.render();
                 requestAnimationFrame(update);
             }else {
                 cancelAnimationFrame(update);
                 update=null;
+
             }
 
         };
@@ -305,10 +286,6 @@ JumpGame.prototype={
     userJump:function() {
         var self=this;
         var flag=true;
-        var userPositon={
-            z:this.user.position.z,
-            x:this.user.position.x
-        };
         var jump=function () {
             var z=self.box.depth;
             if(self.user.position.y>z || flag){
@@ -335,7 +312,6 @@ JumpGame.prototype={
                 self.jumpStat.ySpeed = 0;
                 self.jumpStat.scale=1;
                 var falling=self.isFalling();
-
                 if(!falling){
                     self.score+=1;
                     self.getScore();
@@ -344,7 +320,6 @@ JumpGame.prototype={
 
                 }else {
                     self.fallingAnimate();
-                    return
                 }
 
 
@@ -363,7 +338,12 @@ JumpGame.prototype={
         if(distanceNext>distanceCurrent){
             approachCube=currentCube;
             this.fallDire=-1;
-            this.cubeStat.cubeBoundary=approachCube[axis]+(this.box.width*this.cubeStat.nextDir/2);
+            if (Math.abs(user[axis]-approachCube[axis])<this.box.width/2+this.userSize.bottomRadius){
+                this.cubeStat.cubeBoundary=approachCube[axis]+(this.box.width*this.cubeStat.nextDir/2);
+            }else {
+                this.cubeStat.cubeBoundary=user[axis];
+            }
+
         }else {
             approachCube=nextCube;
             this.fallDire=this.getFallingDirection(approachCube,axis);
@@ -383,7 +363,7 @@ JumpGame.prototype={
             this.cubeStat.cubeBoundary=cube[axis]-(this.box.width*this.cubeStat.nextDir/2);
             return 1;
         }else {
-            this.cubeStat.cubeBoundary=cube[axis]+(this.box.width*this.cubeStat.nextDir/2);
+            this.cubeStat.cubeBoundary=this.user.position[axis];
             return -1;
         }
 
@@ -409,8 +389,15 @@ JumpGame.prototype={
         };
         var approachingCube=this.getApproachCube(user,currentCube,nextCube);
         var axis=this.cubeStat.nextDir<0?"z":"x";
-        return !(user[axis]>approachingCube[axis]+this.box.width/2*this.cubeStat.nextDir
-            && user[axis]<approachingCube[axis]-this.box.width/2*this.cubeStat.nextDir);
+
+        /**
+         * 原理为：一点位于2个端点之间，则这个点分为与端点的距离之和等于2端点之间的距离。
+         * 判断user是否在这个cube的平面上；
+         */
+        return Math.abs(user[axis]-(approachingCube[axis]+this.box.width/2))+
+            Math.abs(user[axis]-(approachingCube[axis]-this.box.width/2))-this.box.width>0;
+
+
 
     },
 
@@ -453,15 +440,15 @@ JumpGame.prototype={
             this.isMobile = true
         }
     },
-    handleMousedown:function (e) {
+    handleMousedown:function () {
         var self=this;
         /**
          * &&this.user.scale.y>0.02
          */
         var accelerate=function () {
             if(self.jumpStat.ready && self.user.scale.y>0.5){
-                self.jumpStat.horizontalSpeed+=0.005;
-                self.jumpStat.ySpeed+=0.01;
+                self.jumpStat.horizontalSpeed+=0.008;
+                self.jumpStat.ySpeed+=0.012;
                 self.jumpStat.scale-=0.002;
                 self.user.scale.y=self.jumpStat.scale;
                 self.render();
@@ -490,7 +477,6 @@ JumpGame.prototype={
         this.createCube();
         this.creatUser(this.cubes[0].position.x,this.box.depth,this.cubes[0].position.z);
         this.createCube();
-        initStats();
         this.render();
         this.updateCameraPosition();
         this.updateCamera();
@@ -530,19 +516,6 @@ JumpGame.prototype={
 
     }
 };
-function initStats() {
-    stats.setMode(0); // 0: fps, 1: ms
-
-    // Align top-left
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.left = '0px';
-    stats.domElement.style.top = '0px';
-
-    document.querySelector("#stats").append( stats.domElement );
-
-    return stats;
-}
-
 
 var game=new JumpGame();
 game.init();
